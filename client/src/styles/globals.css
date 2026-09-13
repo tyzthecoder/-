@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Depth-driven theme tokens. These are rewritten continuously by
+     ThemeEngine (see theme/ThemeEngine.tsx) as the user scrolls — every
+     color a component uses should read from one of these variables rather
+     than a static Tailwind color, so the whole UI drifts together. */
+  --signal-bg-top: #fef6e4;
+  --signal-bg-bottom: #ffe8f0;
+  --signal-surface: #ffffff;
+  --signal-surface-alt: #fff9f0;
+  --signal-ink: #1b1b1f;
+  --signal-ink-muted: #55555f;
+  --signal-accent: #ff7a59;
+  --signal-accent-2: #6c5ce7;
+  --signal-border: rgba(27, 27, 31, 0.08);
+  --signal-shadow: rgba(30, 20, 10, 0.12);
+  --signal-glow: 0px;
+  --signal-vignette: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(180deg, var(--signal-bg-top), var(--signal-bg-bottom));
+  color: var(--signal-ink);
+  transition: color 0.6s ease;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--signal-accent);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--signal-ink-muted);
+  opacity: 0.3;
+  border-radius: 999px;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
