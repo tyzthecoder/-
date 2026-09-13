@@ -3,6 +3,12 @@
 // one, and attach it to every mutating request. The session cookie itself
 // is httpOnly and travels automatically via `credentials: 'include'`.
 
+// In local dev, Vite's dev-server proxy (vite.config.ts) forwards relative
+// `/api` paths to the backend, so API_BASE is empty. Once the client is
+// deployed on its own (e.g. a static build on Vercel) there's no proxy, so
+// VITE_API_URL must point at the deployed API's origin.
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 let csrfToken: string | null = null;
 
 export function getCachedCsrfToken() {
@@ -11,7 +17,7 @@ export function getCachedCsrfToken() {
 
 async function ensureCsrfToken() {
   if (csrfToken) return csrfToken;
-  const res = await fetch('/api/auth/csrf', { credentials: 'include' });
+  const res = await fetch(`${API_BASE}/api/auth/csrf`, { credentials: 'include' });
   const data = await res.json();
   csrfToken = data.csrfToken;
   return csrfToken;
@@ -42,7 +48,7 @@ export async function apiFetch<T = unknown>(path: string, options: RequestOption
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
   if (isMutating && csrfToken) headers['x-csrf-token'] = csrfToken;
 
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     credentials: 'include',
     headers,

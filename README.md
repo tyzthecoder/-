@@ -37,6 +37,33 @@ log in to start banking dive time, earning badges, and commenting.
 
 Run the server's test suite with `npm run test:server`.
 
+### Deploying (client on Vercel, API elsewhere)
+
+The client is a static Vite build — a good fit for Vercel. The API is not:
+`better-sqlite3` needs a persistent writable disk and Socket.IO needs
+long-lived connections, neither of which fit Vercel's serverless model. Run
+`server/` as a normal long-lived Node process instead (Render, Railway,
+Fly.io, a VM — anywhere that gives you a persistent disk), and point the
+Vercel-hosted client at it:
+
+1. Deploy `server/` to your Node host. Copy `server/.env.production` there,
+   fill in real values (a freshly generated `SESSION_SECRET`, the exact
+   client origin, a `DATA_DIR` on a persistent volume), and set
+   `COOKIE_SAME_SITE=none` — the client and API are on different domains
+   (cross-site), so the session cookie needs `SameSite=None; Secure` or the
+   browser won't send it back on API calls.
+2. Deploy `client/` to Vercel (set its root directory to `client/` if
+   importing the whole monorepo). Fill in `client/.env.production`'s
+   `VITE_API_URL` with your API's real origin before building — Vite bakes
+   it into the bundle at build time. `client/vercel.json` adds the rewrite
+   client-side routing needs (so refreshing `/leaderboard` doesn't 404).
+3. Set the API's `CLIENT_ORIGIN` to the exact Vercel URL from step 2 (CORS
+   is locked to that one origin) and redeploy the API.
+
+Both `.env.production` files are committed as **templates** with placeholder
+values, not real secrets — fill in the real ones directly in your host's
+environment variable settings rather than committing them.
+
 ## The core mechanic: how "infinite, personal, but shared" works
 
 Everything in the feed is a **pure function of a seed and a position** —
