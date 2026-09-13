@@ -52,6 +52,18 @@ Vercel-hosted client at it:
    `COOKIE_SAME_SITE=none` — the client and API are on different domains
    (cross-site), so the session cookie needs `SameSite=None; Secure` or the
    browser won't send it back on API calls.
+
+   **On Render specifically**, `render.yaml` at the repo root is a ready-made
+   blueprint (root dir `server/`, build `npm install`, start `npm start`, a
+   persistent disk mounted for `DATA_DIR`) — import it from
+   [the Blueprints dashboard](https://dashboard.render.com/blueprints) and
+   Render will prompt you for the `sync: false` values instead of you typing
+   commands by hand. Whichever way you deploy: Render (and most hosts) sets
+   `NODE_ENV=production` automatically, and this server *deliberately*
+   refuses to boot in production without `SESSION_SECRET` set — a crash
+   that looks like "the start command doesn't work" is almost always just
+   that var missing from the dashboard's environment settings, not a bug in
+   `package.json`'s `start` script.
 2. Deploy `client/` to Vercel (set its root directory to `client/` if
    importing the whole monorepo). Fill in `client/.env.production`'s
    `VITE_API_URL` with your API's real origin before building — Vite bakes

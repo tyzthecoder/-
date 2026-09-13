@@ -1,0 +1,33 @@
+# Render Blueprint for the API (server/). Not used for the client — that's
+# a static Vite build, meant for a static host like Vercel (see
+# client/vercel.json and README.md's deployment section).
+#
+# Deploy via https://dashboard.render.com/blueprints, pointing at this repo.
+# Render will prompt for every `sync: false` value below rather than using
+# a placeholder — nothing secret lives in this file.
+services:
+  - type: web
+    name: unknown-signal-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        sync: false # generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      - key: CLIENT_ORIGIN
+        sync: false # exact origin the client is served from, e.g. https://your-app.vercel.app
+      - key: COOKIE_SAME_SITE
+        value: none # required whenever the client is on a different domain (e.g. Vercel) than this API
+      - key: DATA_DIR
+        value: /var/data/unknown-signal
+    disk:
+      # better-sqlite3's database file and the session store both live here.
+      # Without a real persistent disk, data (and everyone's sessions)
+      # vanishes on every redeploy or restart.
+      name: unknown-signal-data
+      mountPath: /var/data
+      sizeGB: 1

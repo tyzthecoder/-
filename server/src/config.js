@@ -3,7 +3,17 @@ import 'dotenv/config';
 const required = (val, fallback, name) => {
   if (val) return val;
   if (process.env.NODE_ENV === 'production') {
-    throw new Error(`Missing required env var ${name} in production`);
+    // This is the #1 cause of "the start command isn't working" on a fresh
+    // host deploy (Render, Railway, etc.): those platforms set
+    // NODE_ENV=production for you automatically, so this fires unless you
+    // explicitly set the var yourself in the dashboard's environment
+    // settings — nothing wrong with the start script or the code path.
+    throw new Error(
+      `Missing required env var ${name} in production. ` +
+        `Set it in your host's dashboard (e.g. Render → your service → ` +
+        `Environment) — see server/.env.production for the full list this ` +
+        `service needs.`
+    );
   }
   return fallback;
 };
